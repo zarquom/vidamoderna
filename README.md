@@ -15,3 +15,7 @@ El repositorio es publico, por lo que deberíais poder usarlo sin problemas. Si t
 ## Roles
 
 Yo soy programador, pero la idea es que realmente cualquiera pueda modificar cosas. Por ejemplo, si eres artista, o simplemente crees que hay algunos gráficos que pueden mejorar, siéntete libre de cambiarlos (puedes contactar conmigo si tienes dudas de cómo hacerlo).
+
+
+
+Y por último, recordad: KEEP IT CUTRE!!!
