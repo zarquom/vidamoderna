@@ -12,14 +12,17 @@ public class BallScript : MonoBehaviour {
   private Rigidbody2D rb;
   private SpriteRenderer spr;
   public bool isFired = false;
+  public bool isDone = false;
   private int m_basketPhase;
   private int m_score;
   private bool m_scored;
-
-  private Vector3 m_firstPos;
+  public bool scored {
+    get {
+      return m_scored;
+    }
+  }
 
   void Start() {
-    m_firstPos = transform.position;
     rb = GetComponent<Rigidbody2D>();
     rb.isKinematic = true;
     m_basketPhase = 0;
@@ -39,6 +42,7 @@ public class BallScript : MonoBehaviour {
   }
 
   void OnTriggerEnter2D(Collider2D other) {
+    if (isDone) return;
     if (other.name == "Col1") {
       if (m_basketPhase == 0) m_basketPhase = 1;
     } else if (other.name == "Col2") {
@@ -47,6 +51,17 @@ public class BallScript : MonoBehaviour {
       if (m_basketPhase == 2) m_basketPhase = 3;
     } else if (other.name == "Col4") {
       if (m_basketPhase == 3) m_basketPhase = 4;
+    } else if (other.name == "Floor") {
+      isDone = true;
+      player.FireEnd();
+    }
+  }
+
+  void OnCollisionEnter2D(Collision2D other) {
+    if (isDone) return;
+    if (other.gameObject.name == "Floor") {
+      isDone = true;
+      player.FireEnd();
     }
   }
 
