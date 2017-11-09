@@ -1,8 +1,9 @@
-﻿using SimpleFirebaseUnity;
+﻿
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
@@ -20,18 +21,21 @@ public class PlayerController : MonoBehaviour {
 
   public GameObject endPanel;
 
-  private Firebase firebase;
+  public Text money;
+
   // Use this for initialization
   void Start() {
-    firebase = Firebase.CreateNew("vidamoderna-11d02.firebaseio.com/", "9x3P8qsxIkl7kGBEqwAExALKQirYz3uXL0UCNzet");
     currentScore = 0;
     score.text = currentScore.ToString();
     meAnim = GetComponent<Animator>();
+    meAnim.runtimeAnimatorController = GetComponent<AnimsContainer>().anims[PlayerPrefs.GetInt("pachacho", 0)];
     SpawnBall();
+    money.text = PlayerPrefs.GetInt("lereles", 0).ToString();
   }
 
   private void SpawnBall() {
-    transform.localPosition = new Vector3(UnityEngine.Random.Range(-10f, 0f), transform.localPosition.y, transform.localPosition.z);
+    float range = -1f * (currentScore + 1);
+    transform.localPosition = new Vector3(UnityEngine.Random.Range(range, 0f), transform.localPosition.y, transform.localPosition.z);
     GameObject obj = Instantiate(ballPrefab);
     obj.transform.position = transform.position + new Vector3(2f, 3.5f, 0);
     currentBall = obj.GetComponent<BallScript>();
@@ -47,6 +51,8 @@ public class PlayerController : MonoBehaviour {
   public void AddScore(int scoreValue) {
     currentScore += scoreValue;
     score.text = currentScore.ToString();
+    PlayerPrefs.SetInt("lereles", PlayerPrefs.GetInt("lereles", 0) + 1);
+    money.text = PlayerPrefs.GetInt("lereles", 0).ToString();
   }
 
   public void Fire() {
@@ -64,7 +70,7 @@ public class PlayerController : MonoBehaviour {
   }
 
   private IEnumerator FireEndCoroutine() {
-    yield return new WaitForSeconds(3f);
+    yield return new WaitForSeconds(2f);
     if (!currentBall.scored) {
       endPanel.SetActive(true);
     } else {
@@ -74,12 +80,16 @@ public class PlayerController : MonoBehaviour {
   }
 
   public void SubmitAndSpawn() {
-    firebase.Child("Scores").Push("{ \"name\": \""+ PlayerPrefs.GetString("PlayerName") + "\",\"score\": \"" + currentScore + "\"}", true);
+    DatabaseManager.instance.SubmitScore(currentScore);
     currentScore = 0;
     score.text = currentScore.ToString();
     Destroy(currentBall.gameObject);
     SpawnBall();
     endPanel.SetActive(false);
+  }
+
+  public void GoToMenu() {
+    SceneManager.LoadScene("BallGameMenu");
   }
 
   // Update is called once per frame
