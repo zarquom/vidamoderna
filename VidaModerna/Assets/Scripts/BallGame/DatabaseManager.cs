@@ -10,6 +10,7 @@ public class DatabaseManager : MonoBehaviour {
 
   private Firebase firebase;
   private Action<List<Score>> cBack;
+  private List<Score> currentScores;
   // Use this for initialization
   void Start () {
 		if(instance == null) {
@@ -23,6 +24,7 @@ public class DatabaseManager : MonoBehaviour {
     firebase = Firebase.CreateNew("vidamoderna-11d02.firebaseio.com/", "9x3P8qsxIkl7kGBEqwAExALKQirYz3uXL0UCNzet");
     firebase.OnGetSuccess += GetOKHandler;
     firebase.OnGetFailed += GetFailHandler;
+    GetScores(null);
   }
 
   void GetOKHandler(Firebase sender, DataSnapshot snapshot) {
@@ -45,7 +47,10 @@ public class DatabaseManager : MonoBehaviour {
       return (b.score).CompareTo(a.score);
     });
 
-    if(cBack != null) {
+    currentScores = new List<Score>();
+    currentScores = scores;
+
+    if (cBack != null) {
       cBack(scores);
     }
   }
@@ -55,7 +60,11 @@ public class DatabaseManager : MonoBehaviour {
   }
 
   public void SubmitScore(int currentScore) {
-    firebase.Child("Scores").Push("{ \"name\": \"" + PlayerPrefs.GetString("PlayerName") + "\",\"score\": \"" + currentScore + "\"}", true);
+    int index = currentScores.Count >= 15 ? 14 : currentScores.Count;
+    if (currentScore > currentScores[index].score) {
+      firebase.Child("Scores").Push("{ \"name\": \"" + PlayerPrefs.GetString("PlayerName") + "\",\"score\": \"" + currentScore + "\"}", true);
+      GetScores(null);
+    }
   }
 
   public void GetScores(Action<List<Score>> callback) {
